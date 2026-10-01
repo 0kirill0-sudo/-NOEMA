@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NOEMA — нейросеть, которая живёт на процессоре</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f4f0;--ink:#3b3a38;--soft:#6f6c66;--card:#faf9f6;--line:#cfcbc2;
+--rose:#c9a3a0;--sage:#a3b59d;--mustard:#d4bf8b;--lav:#b3a9c6;--sky:#9fb5c3;--terra:#c9a08a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#262522;--ink:#e6e3dc;--soft:#a8a499;--card:#2d2c29;--line:#47453f;
+--rose:#a98482;--sage:#869a81;--mustard:#b3a070;--lav:#948aa8;--sky:#82989f;--terra:#a98370}}
+:root[data-theme="dark"]{--bg:#262522;--ink:#e6e3dc;--soft:#a8a499;--card:#2d2c29;--line:#47453f;
+--rose:#a98482;--sage:#869a81;--mustard:#b3a070;--lav:#948aa8;--sky:#82989f;--terra:#a98370}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:300 18px/1.6 Kalam,"Comic Sans MS",cursive,sans-serif;overflow-x:hidden}
+.hand{font-family:Caveat,"Segoe Print","Bradley Hand",cursive;font-weight:500}
+main{max-width:1000px;margin:0 auto;padding:0 22px;position:relative}
+section{position:relative;padding:60px 0}
+.logo{width:min(760px,100%);display:block;margin:20px auto 0;color:var(--ink)}
+.hero{text-align:center;padding-top:28px}
+.tag{font-size:clamp(28px,5vw,42px);margin:6px 0 0;color:var(--ink);transform:rotate(-1.5deg)}
+.sub{max-width:560px;margin:14px auto 0;color:var(--soft)}
+.btn{display:inline-block;margin-top:28px;padding:10px 30px;font-size:26px;color:var(--ink);text-decoration:none;
+border:2.5px solid var(--ink);border-radius:46% 54% 50% 50%/55% 45% 55% 45%;transform:rotate(-1deg);transition:.2s;background:transparent}
+.btn:hover{background:var(--mustard);transform:rotate(1deg) scale(1.04)}
+h2{font-size:clamp(34px,6vw,50px);margin:0 0 6px;position:relative;display:inline-block}
+h2:after{content:"";position:absolute;left:-4px;right:-4px;bottom:2px;height:10px;background:var(--c,var(--mustard));opacity:.55;border-radius:60% 40% 55% 45%;z-index:-1;transform:rotate(-.8deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;margin-top:30px}
+.note{background:var(--card);padding:24px 22px;border:1.5px solid var(--line);border-radius:6px 14px 8px 16px;position:relative;box-shadow:3px 4px 0 var(--line)}
+.note:nth-child(1){transform:rotate(-1.2deg)}.note:nth-child(2){transform:rotate(.9deg)}.note:nth-child(3){transform:rotate(-.6deg)}
+.note h3{margin:0 0 6px;font-size:30px}
+.note p{margin:0;color:var(--soft);font-size:16.5px}
+.steps{list-style:none;padding:0;margin:30px 0 0;counter-reset:s}
+.steps li{counter-increment:s;padding:6px 0 6px 64px;position:relative;margin-bottom:12px}
+.steps li:before{content:counter(s);position:absolute;left:0;top:0;width:46px;height:46px;border:2.5px solid var(--ink);border-radius:52% 48% 45% 55%;
+text-align:center;font:500 30px/42px Caveat,cursive}
+.demo{background:var(--card);border:2px dashed var(--line);border-radius:18px 8px 20px 10px;padding:26px;margin-top:26px}
+.demo .row{display:flex;gap:12px;flex-wrap:wrap}
+input{flex:1;min-width:200px;font:inherit;padding:10px 16px;border:2px solid var(--ink);border-radius:14px 8px 16px 10px;background:var(--bg);color:var(--ink)}
+button.btn{cursor:pointer;margin:0;font-family:Caveat,cursive;font-size:24px}
+.out{margin-top:16px;color:var(--soft);min-height:1.6em}
+.wip{display:inline-block;margin-top:18px;padding:6px 22px;font-size:26px;color:var(--ink);background:color-mix(in srgb,var(--mustard) 45%,transparent);border:2px dashed var(--mustard);border-radius:50% 45% 55% 40%/45% 55% 45% 55%;transform:rotate(1.5deg)}
+.devs{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px}
+.dev{flex:1;min-width:220px;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:14px 6px 16px 8px;padding:26px 20px;box-shadow:3px 4px 0 var(--line)}
+.dev:nth-child(1){transform:rotate(-1deg)}.dev:nth-child(2){transform:rotate(1.1deg)}
+.dev h3{margin:8px 0 0;font-size:36px}
+footer{text-align:center;padding:30px 0 60px;color:var(--soft)}
+.fl{position:absolute;pointer-events:none;opacity:.9;z-index:0}
+main>*:not(.fl){position:relative;z-index:1}
+@media(max-width:640px){.fl.big{display:none}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5"/></filter>
+<symbol id="f5" viewBox="0 0 120 150"><g filter="url(#pencil)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<path d="M60 146C58 120 64 100 60 74" stroke="var(--sage)" stroke-width="3.5"/><path d="M61 118C78 112 90 96 96 98 90 112 78 122 61 118Z" fill="var(--sage)" fill-opacity=".45" stroke="var(--sage)" stroke-width="2.5"/>
+<g fill="currentColor" fill-opacity=".38" stroke="currentColor" stroke-width="2.6"><path id="p" d="M60 52C44 40 46 14 60 8 74 14 76 40 60 52Z"/><use href="#p" transform="rotate(72 60 56)"/><use href="#p" transform="rotate(144 60 56)"/><use href="#p" transform="rotate(216 60 56)"/><use href="#p" transform="rotate(288 60 56)"/></g>
+<circle cx="60" cy="56" r="8" fill="var(--mustard)" fill-opacity=".7" stroke="var(--terra)" stroke-width="2.5"/>
+<path d="M30 20 36 26M92 18 86 25" stroke="var(--soft)" stroke-width="1.2" opacity=".6"/></g></symbol>
+<symbol id="tul" viewBox="0 0 100 150"><g filter="url(#pencil)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<path d="M50 146C48 118 52 96 50 62" stroke="var(--sage)" stroke-width="3.5"/><path d="M50 128C26 124 16 100 14 90 36 96 48 108 50 128Z" fill="var(--sage)" fill-opacity=".45" stroke="var(--sage)" stroke-width="2.5"/>
+<path d="M26 18C24 44 32 64 50 66 68 64 76 44 74 18 66 28 58 22 50 30 42 22 34 28 26 18Z" fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-width="2.8"/>
+<path d="M50 30C46 44 46 56 50 64" stroke="currentColor" stroke-width="1.6" opacity=".7"/><path d="M34 30 36 52M66 30 64 52" stroke="currentColor" stroke-width="1.2" opacity=".5"/></g></symbol>
+<symbol id="spr" viewBox="0 0 90 120"><g filter="url(#pencil)" stroke-linecap="round" fill="none"><path d="M44 116C40 84 48 56 44 8" stroke="var(--sage)" stroke-width="3"/>
+<g fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-width="2.4"><circle cx="26" cy="38" r="9"/><circle cx="64" cy="26" r="8"/><circle cx="24" cy="70" r="8"/><circle cx="66" cy="60" r="9"/><circle cx="44" cy="10" r="7"/></g>
+<path d="M44 96C28 92 22 82 20 78M44 84C60 80 66 72 68 68" stroke="var(--sage)" stroke-width="2.4"/></g></symbol>
+<symbol id="dai" viewBox="0 0 90 90"><g filter="url(#pencil)" stroke-linecap="round" fill="none"><g fill="currentColor" fill-opacity=".35" stroke="currentColor" stroke-width="2.2"><ellipse id="e" cx="45" cy="20" rx="7" ry="16"/><use href="#e" transform="rotate(45 45 45)"/><use href="#e" transform="rotate(90 45 45)"/><use href="#e" transform="rotate(135 45 45)"/><use href="#e" transform="rotate(180 45 45)"/><use href="#e" transform="rotate(225 45 45)"/><use href="#e" transform="rotate(270 45 45)"/><use href="#e" transform="rotate(315 45 45)"/></g><circle cx="45" cy="45" r="9" fill="var(--mustard)" fill-opacity=".7" stroke="var(--terra)" stroke-width="2.2"/></g></symbol>
+</defs></svg>
+
+<main>
+<svg class="fl big" style="left:-30px;top:40px;width:120px;color:var(--rose);transform:rotate(-8deg)"><use href="#f5"/></svg>
+<svg class="fl big" style="right:-20px;top:70px;width:100px;color:var(--lav);transform:rotate(9deg)"><use href="#tul"/></svg>
+<svg class="fl" style="left:4%;top:470px;width:70px;color:var(--sky);transform:rotate(14deg)"><use href="#dai"/></svg>
+<svg class="fl" style="right:5%;top:520px;width:80px;color:var(--terra)"><use href="#spr"/></svg>
+
+<section class="hero">
+ <div class="logo" role="img" aria-label="NOEMA"><svg style="width:100%;height:auto" viewBox="0 0 2254 1212" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M121.821 141.766C118.098 149.248 108.058 164.252 98.6768 179.311C83.0842 204.34 67.9748 246.901 64.177 270.157C60.4932 292.716 55.4158 309.621 51.0164 327.82C44.6661 354.089 46.6169 382.268 43.496 417.294C38.5348 472.972 44.0976 515.228 45.9777 540.741C53.4081 641.571 59.1008 674.284 62.2781 706.941C64.0688 725.346 77.9017 744.524 91.0624 777.746C99.8719 799.984 117.985 816.043 136.166 830.445C154.281 844.794 169.35 854.924 185.688 863.065C200.514 870.452 220.714 877.485 248.314 885.626C270.4 892.14 300.881 892.526 324.176 895.045C333.075 896.008 390.75 902.565 476.576 903.825C531.62 904.633 584.024 896.361 618.655 890.683C687.487 879.398 753.232 875.003 786.623 879.985C814.969 884.215 884.614 890.044 969.161 889.424C1029.31 888.982 1046.75 883.802 1070.52 881.283C1133.19 874.639 1185.88 870.002 1233.15 867.502C1272.93 865.397 1344.94 865.001 1387.6 863.121C1430.26 861.241 1441.42 858.759 1485.02 856.86C1528.62 854.961 1604.31 853.721 1646.41 853.702C1707.36 853.675 1742.24 858.684 1770.57 866.825C1785.85 871.215 1802.55 873.725 1818.8 881.208C1839.22 890.615 1887.46 924.901 1948.24 962.484C1984.4 984.842 2009.21 1046.39 2025.7 1077.98C2035.87 1097.45 2044.48 1111.82 2053.9 1138.1C2059.07 1152.53 2060.8 1164.5 2067.66 1167.66C2111.68 1187.92 2087.12 1044.29 2089.02 988.655C2089.87 963.86 2094.64 946.522 2097.16 922.1C2099.07 903.629 2117.13 890.119 2135.33 878.801C2161.12 862.76 2186.09 854.999 2196.17 840.597C2217.38 810.279 2209.93 746.029 2211.87 672.235C2212.63 643.028 2206.25 618.182 2201.23 597.463C2190.15 551.745 2199.93 502.819 2191.84 461.589C2180.94 405.987 2181.2 382.568 2177.41 359.932C2173.97 339.442 2161.12 326.09 2153.6 303.548C2145.12 278.115 2138.56 254.647 2130.42 186.531C2128.67 171.866 2127.28 168.162 2124.78 165.004C2113.96 151.334 2096 144.323 2071.57 131.162C2054.48 121.947 2034.63 116.723 1995.17 101.72C1969.94 92.1297 1883.55 85.3627 1822.8 82.2417C1782.7 80.1817 1735.02 71.6004 1690.12 67.2009C1619.61 60.2919 1568.29 67.8026 1545.88 69.6827C1498.81 73.6312 1464.25 69.081 1417.66 67.2009C1374.82 65.4723 1292.9 66.5617 1248.84 65.9413C1204.79 65.3208 1201.07 64.08 1134.63 62.8203C1068.19 61.5607 939.136 60.3198 868.934 59.0601C791.258 57.6664 773.688 55.2811 748.72 54.0403C686.923 50.969 669.606 46.5199 594.458 44.0194C524.302 41.6849 389.02 41.5188 314.38 41.5C204.442 41.4723 159.573 66.4865 141.919 75.3042C134.38 90.3261 121.896 102.885 110.578 115.388C108.058 119.167 105.577 122.889 95.4994 130.485" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M72.9382 138.005C72.9382 142.969 72.9382 169.102 71.6974 202.342C71.3339 212.079 67.9748 207.043 65.4555 200.143C52.5222 164.721 60.3792 128.078 71.641 108.619C81.6937 91.2496 109.187 82.8809 134.85 78.4815C145.339 76.6834 161.604 77.8423 169.293 75.981C176.983 74.1197 175.742 70.3971 166.417 68.4794C140.199 63.0879 114.376 70.2843 101.234 77.7859C82.2894 88.5996 81.7371 111.609 71.0958 126.668C62.216 139.235 65.4179 184.03 62.2969 213.153C60.6798 228.243 57.8975 258.106 48.5346 293.941C40.279 325.537 49.0986 153.121 57.8599 134.941C60.0678 130.359 62.8609 126.8 66.6211 124.262C81.7674 114.038 101.666 106.796 118.625 92.3002C136.824 80.3616 151.827 77.8423 164.969 76.6014C170.666 75.3606 174.388 72.8788 181.984 70.3219" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M181.984 74.0821C177.02 81.5649 159.498 94.0863 144.438 107.247C129.379 120.408 118.098 134.208 111.837 142.33C108.737 146.352 108.058 151.692 112.383 148.045C126.634 131.989 140.584 111.759 146.845 98.6174C149.383 92.9207 150.624 89.1981 159.423 85.3627" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1840.23 89.1229C1851.43 89.1229 1874 91.6046 1960.84 93.5035C2001.34 94.389 2035.68 116.647 2053.86 127.928C2071.93 139.135 2073.29 155.528 2082.1 166.79C2094.3 182.365 2125.85 227.874 2137.27 258.275C2143.4 274.623 2148.56 304.507 2154.81 332.182C2162.01 364.115 2164.81 382.343 2169.23 429.195C2174.67 486.902 2181.13 513.874 2183.03 539.632C2184.66 561.754 2188.65 586.596 2190.55 604.833C2193.61 634.209 2196.17 681.805 2196.83 745.671C2197.1 772.346 2186.24 794.685 2171.18 829.129C2156.12 844.884 2143.6 854.924 2134.84 860.545C2131.04 863.685 2128.56 867.408 2122.24 875.003" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2129.76 168.087C2136.01 173.05 2148.49 193.055 2159.81 213.134C2170.02 231.247 2173.61 249.458 2176.75 293.865C2179.45 332.06 2191.13 350.983 2194.31 370.442C2197.45 392.345 2198.69 416.222 2200.57 464.672C2201.21 509.4 2201.21 595.019 2201.21 683.233" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M155.663 653.152C155.663 641.909 160.626 616.979 179.371 560.125C206.182 478.802 218.307 418.817 222.688 407.574C225.828 393.849 230.829 376.251 238.33 353.145C242.109 339.965 245.832 323.834 249.667 307.214" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M249.667 307.214C258.429 315.938 263.43 333.46 271.57 349.761C282.12 370.884 300.881 422.126 314.192 458.167C322.175 479.782 323.593 495.149 332.354 513.329C341.122 531.524 348.636 554.033 356.175 574.733C364.447 597.444 368.715 611.715 376.235 626.774C377.514 630.553 377.514 634.276 378.755 638.055C379.996 641.834 382.477 645.556 385.034 649.392" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M385.034 653.152C383.756 648.188 403.685 583.513 412.596 542.301C418.959 512.877 436.248 433.181 448.318 387.513C450.198 358.654 455.199 344.854 458.96 335.491C460.238 329.85 460.238 322.405 460.238 314.734" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M595.605 322.255C589.363 325.977 581.843 340.981 571.201 409.623C555.213 512.757 575.526 528.99 581.166 545.911C589.825 571.89 598.087 589.153 608.089 603.592C620.765 621.892 644.412 625.552 662.574 631.192C679.158 636.342 698.296 638.111 715.179 637.491C730.921 636.912 744.697 630.628 760.922 614.441C789.995 585.435 798.656 521.921 797.415 461.796C796.535 419.157 773.688 397.609 760.471 378.714C748.52 361.629 731.047 353.615 712.885 344.233C683.571 329.091 642.307 329.775 614.462 333.517C610.515 334.047 606.961 336.017 604.423 338.518C601.885 341.018 600.644 344.741 600.005 351.622C599.365 358.503 599.365 368.43 599.365 378.658" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M885.14 326.015C885.14 328.497 885.14 363.279 885.76 415.902C886.031 438.82 888.9 500.902 892.002 589.887C893.076 620.689 901.309 621.792 929.943 622.431C958.577 623.07 1009.45 623.07 1033.8 621.209C1058.15 619.348 1054.42 615.625 1050.59 611.79" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M900.181 442.581C907.664 441.34 972.301 438.821 1012.93 435.7C1016.71 435.061 1020.43 435.061 1024.21 434.44C1027.99 433.82 1031.71 432.579 1039.31 431.3" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M881.38 322.255C906.235 322.255 963.954 324.737 995.953 326.635C1002.91 327.256 1007.87 328.497 1016.01 329.136C1024.15 329.775 1035.32 329.775 1046.83 329.775" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1185.96 604.269C1188.44 604.269 1189.72 552.153 1189.1 471.328C1188.74 425.029 1188.44 397.534 1190.96 380.613C1192.96 367.157 1200.96 357.375 1208.46 352.994C1215.48 348.894 1223.52 348.576 1232.26 351.058C1259.76 358.863 1269.88 393.548 1281.8 426.149C1296.5 466.342 1289.96 491.388 1300.58 510.81C1304.02 517.088 1311.17 522.673 1316.85 525.869C1322.53 529.065 1327.49 529.065 1333.77 528.445C1347.55 527.083 1355.16 443.408 1379.47 385.614C1383.33 376.445 1400.06 382.418 1407.68 384.279C1431.03 389.989 1445.33 414.906 1452.29 434.967C1457.89 478.792 1475.42 556.139 1479.87 596.053C1480.49 600.472 1481.73 604.194 1483.01 608.029" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1618.38 596.749C1620.86 596.749 1628.34 589.304 1655.11 521.564C1678.53 462.317 1710.43 348.351 1729.57 287.699C1748.71 227.047 1751.19 222.083 1753.09 221.388C1765.94 216.678 1767.51 250.736 1777.51 273.861C1790.56 304.037 1792.59 334.701 1795.71 352.205C1798.87 369.964 1807.59 414.643 1818.83 482.195C1832.56 539.82 1843.95 575.353 1850.83 590.996C1853.99 597.952 1856.47 602.916 1859.03 608.03" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1697.34 521.545C1702.31 519.063 1728.44 516.544 1766.64 514.043C1781.27 512.784 1786.23 511.543 1791.27 510.904C1796.31 510.264 1801.27 510.264 1810.15 506.504" stroke="currentColor" stroke-width="83" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div>
+ <p class="tag hand">нейросеть, которой хватает процессора ✎</p>
+ <p class="sub">NOEMA работает прямо на CPU — без видеокарты, без облака, без дорогого железа. Просто запустил и пользуешься.</p>
+ <div class="wip hand">✎ модель пока в разработке</div><br><a class="btn hand" href="#try">попробовать</a>
+</section>
+
+<section>
+ <h2 class="hand">почему NOEMA</h2>
+ <div class="grid">
+  <div class="note"><svg width="46" height="46" style="color:var(--rose)"><use href="#dai"/></svg><h3 class="hand">Только CPU</h3><p>Никаких GPU. Работает на обычном ноутбуке или сервере, который у вас уже есть.</p></div>
+  <div class="note"><svg width="40" height="54" style="color:var(--lav)"><use href="#tul"/></svg><h3 class="hand">Локально и приватно</h3><p>Запускается у вас, поэтому ваши данные остаются у вас.</p></div>
+  <div class="note"><svg width="46" height="46" style="color:var(--sky)"><use href="#dai"/></svg><h3 class="hand">Простая</h3><p>Лёгкая в установке и понятная в использовании — без сложной настройки.</p></div>
+ </div>
+</section>
+
+<section>
+ <h2 class="hand" style="--c:var(--sage)">как начать</h2>
+ <ol class="steps">
+  <li>Скачайте NOEMA на свой компьютер.</li>
+  <li>Запустите — видеокарта не нужна.</li>
+  <li>Задайте первый вопрос и посмотрите, как она отвечает.</li>
+ </ol>
+</section>
+
+<section id="try">
+ <h2 class="hand" style="--c:var(--rose)">попробуй сам</h2>
+ <div class="demo">
+  <div class="row"><input id="q" placeholder="Напишите что-нибудь для NOEMA…" aria-label="Сообщение"><button class="btn hand" id="go">отправить</button></div>
+  <div class="out hand" id="out" style="font-size:24px">здесь появится ответ ✿</div>
+ </div>
+</section>
+
+<section id="devs">
+ <h2 class="hand" style="--c:var(--lav)">разработчики</h2>
+ <div class="devs">
+  <div class="dev"><svg width="54" height="54" style="color:var(--sky)"><use href="#dai"/></svg><h3 class="hand">cat.net</h3></div>
+  <div class="dev"><svg width="44" height="58" style="color:var(--rose)"><use href="#tul"/></svg><h3 class="hand">K group</h3></div>
+ </div>
+</section>
+
+<footer class="hand" style="font-size:24px">NOEMA · cat.net &amp; K group · модель в разработке
+ <div style="margin-top:8px"><svg width="40" height="40" style="color:var(--mustard)"><use href="#dai"/></svg><svg width="34" height="46" style="color:var(--rose)"><use href="#tul"/></svg><svg width="40" height="40" style="color:var(--lav)"><use href="#dai"/></svg></div>
+</footer>
+</main>
+<script>
+document.getElementById('go').onclick=function(){
+ var v=document.getElementById('q').value.trim();
+ document.getElementById('out').textContent=v?'Демо-версия: сюда будет подключён настоящий ответ NOEMA.':'Сначала напишите вопрос ✎';
+};
+</script>
+</body></html>
